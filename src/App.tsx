@@ -16,7 +16,7 @@ const ratioData = [
   { value: 20, option: "1:20" }];
 
 const DRIP_WATER_DEFAULT = 40;
-const DRIP_TIMER_DEFAULT = 10;
+const DRIP_TIMER_DEFAULT = 40;
 const COFFEE_SEED_DEFAULT = 15;
 const DRIP_LOOP_DEFAULT = 5;
 const RATIO_DEFAULT_INDEX = 3;
