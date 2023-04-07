@@ -92,7 +92,7 @@ function App() {
   return (
     <Stack spacing={4}>
       <FormControl>
-        <FormLabel>จำนวนกาแฟ (g):</FormLabel>
+        <FormLabel>จำนวนเมล็ดกาแฟ (g):</FormLabel>
         <NumberInput defaultValue={COFFEE_SEED_DEFAULT} min={10} onChange={(s, n) => {
           setCoffeeSeed(isNaN(n) ? 0 : n);
         }}>
@@ -102,7 +102,7 @@ function App() {
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
-        <FormLabel mt={2}>อัตราส่วน:</FormLabel>
+        <FormLabel mt={2}>อัตราส่วน เมล็ดกาแฟ ต่อ น้ำ:</FormLabel>
         <Select placeholder='Select option' value={coffeeWithWaterRatio} onChange={(event) => {
           setCoffeeWithWaterRatio(Number(event.target.value))
         }}>
@@ -203,7 +203,7 @@ function App() {
             <Tr>
               <Th>รอบที่</Th>
               <Th>เวลา/วินาที</Th>
-              <Th>น้ำ/ml</Th>
+              <Th>น้ำ/มิลลิลิตร</Th>
             </Tr>
           </Thead>
           <Tbody>
