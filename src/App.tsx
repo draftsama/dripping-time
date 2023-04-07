@@ -183,12 +183,14 @@ function App() {
         }
         <StatLabel color='gray.500'>สูญเสียน้ำโดยประมาณ {coffeeSeed * 2.0} ml.</StatLabel>
         <StatLabel>น้ำกาแฟที่จะได้:</StatLabel>
+
         {/* add water if cold drip */}
         <StatNumber color='blue.400'>{Math.round((water + ice + diffWater - (coffeeSeed * 2.0)) * 100) / 100} ml.</StatNumber>
+        {diffWater > 0 && <StatLabel color='violet'>น้ำเกิน {diffWater} ml.</StatLabel>}
+        {diffWater < 0 && <StatLabel color='red'>น้ำขาด {Math.abs(diffWater)} ml.</StatLabel>}
         <StatLabel>ใช้เวลาในการดริป:</StatLabel>
         <StatNumber color='blue.400'>{dripTime} วินาที</StatNumber>
-        {diffWater > 0 && <StatLabel color='red.300'>น้ำเกินปริมาณ {diffWater} ml.</StatLabel>}
-        {diffWater < 0 && <StatLabel color='red.300'>น้ำไม่ถึงปริมาณ {Math.abs(diffWater)} ml.</StatLabel>}
+
 
       </Stat>
 
