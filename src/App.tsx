@@ -6,7 +6,7 @@ import { Box, Button, Container, FormControl, FormHelperText, FormLabel, HStack,
 import DripingTime from './DripingTime'
 
 
-const ratioData = [
+const coffeeWithWaterRatioPreset = [
   { value: 10, option: "1:10" },
   { value: 12, option: "1:12" },
   { value: 13, option: "1:13" },
@@ -15,11 +15,17 @@ const ratioData = [
   { value: 18, option: "1:18" },
   { value: 20, option: "1:20" }];
 
+const iceWithWaterRatioPreset = [
+  { value: 0, option: "ไม่ใส่" },
+  { value: 0.4, option: "4:6" },
+  { value: 0.5, option: "5:5" }
+]
 const DRIP_WATER_DEFAULT = 40;
 const DRIP_TIMER_DEFAULT = 40;
 const COFFEE_SEED_DEFAULT = 15;
 const DRIP_LOOP_DEFAULT = 5;
-const RATIO_DEFAULT_INDEX = 3;
+const COFFEE_WATER_RATIO_DEFAULT_INDEX = 3;
+const ICE_WATER_RATIO_DEFAULT_INDEX = 0;
 
 
 
@@ -29,7 +35,9 @@ export type DripProp = {
   time: number
 }
 function App() {
-  const [ratio, setRatio] = useState(ratioData[RATIO_DEFAULT_INDEX].value)
+  const [coffeeWithWaterRatio, setCoffeeWithWaterRatio] = useState(coffeeWithWaterRatioPreset[COFFEE_WATER_RATIO_DEFAULT_INDEX].value)
+  const [iceWithWaterRatio, setIceWithWaterRatio] = useState(iceWithWaterRatioPreset[ICE_WATER_RATIO_DEFAULT_INDEX].value)
+
   const [water, setWater] = useState(0)
   const [dripLoop, setDripLoop] = useState(DRIP_LOOP_DEFAULT)
   const [dripList, setDripList] = useState<DripProp[]>([])
@@ -37,12 +45,7 @@ function App() {
   const [dripTime, setDripTime] = useState(0)
   const [diffWater, setDiffWater] = useState(0)
 
-  const [isColdDrip, setIsColdDrip] = useState<boolean>(false)
   const [ice, setIce] = useState(0)
-  const [tempreature, setSempreature] = useState(90)
-
-  const [iceMelt, setIceMelt] = useState(0)
-
 
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -54,24 +57,14 @@ function App() {
 
   useEffect(() => {
 
-    let w = Math.round((coffeeSeed * ratio) * 100) / 100;
+    const waterTarget = Math.round((coffeeSeed * coffeeWithWaterRatio) * 100) / 100;
+    const iceTarget = waterTarget * iceWithWaterRatio
 
-    //L = 334 J/g (ความคล้ายคลึงของน้ำแข็ง)
-    //C = 4.18 J/g °C (ค่าความร้อนแหล่งเผาผลาญของน้ำ)
-    const L = 334;
-    const C = 4.18;
 
-    const q1 = ice * L;
-    const melt = Math.round(q1 / (C * tempreature))
+    setIce(iceTarget);
+    setWater(waterTarget - iceTarget)
 
-    console.log(melt);
-
-    let round = Math.round((w - melt) * 100) / 100
-
-    setIceMelt(melt);
-
-    setWater(round)
-  }, [ratio, coffeeSeed, ice])
+  }, [coffeeWithWaterRatio, coffeeSeed, iceWithWaterRatio])
 
   useEffect(() => {
     //initialize
@@ -110,27 +103,30 @@ function App() {
           </NumberInputStepper>
         </NumberInput>
         <FormLabel mt={2}>อัตราส่วน:</FormLabel>
-        <Select placeholder='Select option' value={ratio} onChange={(event) => {
-          setRatio(Number(event.target.value))
+        <Select placeholder='Select option' value={coffeeWithWaterRatio} onChange={(event) => {
+          setCoffeeWithWaterRatio(Number(event.target.value))
         }}>
           {
-            ratioData.map((item) => (
+            coffeeWithWaterRatioPreset.map((item) => (
               <option key={item.value} value={item.value}>{item.option}</option>
             ))
           }
 
         </Select>
 
-        <FormLabel mt={2}>จำนวนน้ำแข็ง (g):</FormLabel>
-        <NumberInput value={ice} min={0} step={50} onChange={(s, n) => {
-          setIce(isNaN(n) ? 0 : n);
+
+
+        <FormLabel mt={2}>อัตราส่วน น้ำแข็ง ต่อ น้ำ:</FormLabel>
+        <Select placeholder='Select option' value={iceWithWaterRatio} onChange={(event) => {
+          setIceWithWaterRatio(Number(event.target.value))
         }}>
-          <NumberInputField />
-          <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
-          </NumberInputStepper>
-        </NumberInput>
+          {
+            iceWithWaterRatioPreset.map((item) => (
+              <option key={item.value} value={item.value}>{item.option}</option>
+            ))
+          }
+
+        </Select>
 
       </FormControl>
 
@@ -139,7 +135,7 @@ function App() {
 
       {/* <Text>เมล็ดกาแฟ 1 g. ต่อน้ำ {ratio} ml.</Text> */}
 
-      <FormLabel mt={2}>จำนวนรอบในการดริป: {dripLoop}</FormLabel>
+      <FormLabel mt={2}>จำนวนรอบในการดริป: {dripLoop} รอบ</FormLabel>
 
       <Slider value={dripLoop} min={3} max={5} step={1} onChange={(value) => {
         setDripLoop(value);
@@ -180,12 +176,15 @@ function App() {
 
         <StatLabel>ปริมาณน้ำที่ใช้:</StatLabel>
         <StatNumber>{water} ml.</StatNumber>
+        {ice > 0 && <>
+          <StatLabel>ปริมาณน้ำแข็งที่ใช้:</StatLabel>
+          <StatNumber>{ice} g.</StatNumber>
+        </>
+        }
         <StatLabel color='gray.500'>สูญเสียน้ำโดยประมาณ {coffeeSeed * 2.0} ml.</StatLabel>
         <StatLabel>น้ำกาแฟที่จะได้:</StatLabel>
         {/* add water if cold drip */}
-        <StatNumber color='blue.400'>{Math.round((water + iceMelt + diffWater - (coffeeSeed * 2.0)) * 100) / 100} ml.</StatNumber>
-        <StatLabel>จำนวนรอบในการดริป:</StatLabel>
-        <StatNumber color='blue.400'>{dripLoop} รอบ</StatNumber>
+        <StatNumber color='blue.400'>{Math.round((water + ice + diffWater - (coffeeSeed * 2.0)) * 100) / 100} ml.</StatNumber>
         <StatLabel>ใช้เวลาในการดริป:</StatLabel>
         <StatNumber color='blue.400'>{dripTime} วินาที</StatNumber>
         {diffWater > 0 && <StatLabel color='red.300'>น้ำเกินปริมาณ {diffWater} ml.</StatLabel>}
@@ -232,8 +231,6 @@ function App() {
                         const newArray = [...dripList];
                         let w = isNaN(n) ? DRIP_WATER_DEFAULT : n;
                         newArray[index].water = w;
-
-
 
                         setDripList(newArray);
                       }}>
