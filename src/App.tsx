@@ -5,27 +5,56 @@ import './App.css'
 import { Box, Button, Container, FormControl, FormHelperText, FormLabel, HStack, Input, InputGroup, InputLeftAddon, InputRightAddon, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spacer, Stack, Stat, StatHelpText, StatLabel, StatNumber, Switch, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, Tr, VStack, useDisclosure } from '@chakra-ui/react'
 import DripingTime from './DripingTime'
 
+const presetDatas: PresetData[] = [{
+  index: 0, name: "สูตรเย็น1", data: {
+    coffee: 20,
+    cwIndex: 3,
+    iwIndex: 1,
+    dripTasks: [
+      { id: 1, time: 40, water: 40 },
+      { id: 2, time: 40, water: 40 },
+      { id: 3, time: 40, water: 60 },
+      { id: 4, time: 40, water: 40 },
+    ]
+  }
+}, {
+  index: 1, name: "สูตรร้อน1", data: {
+    coffee: 15,
+    cwIndex: 3,
+    iwIndex: 0,
+    dripTasks: [
+      { id: 1, time: 35, water: 40 },
+      { id: 2, time: 35, water: 40 },
+      { id: 3, time: 35, water: 65 },
+      { id: 4, time: 35, water: 40 },
+      { id: 4, time: 35, water: 40 },
+    ]
+  }
+}]
 
-const coffeeWithWaterRatioPreset = [
-  { value: 10, option: "1:10" },
-  { value: 12, option: "1:12" },
-  { value: 13, option: "1:13" },
-  { value: 15, option: "1:15" },
-  { value: 17, option: "1:17" },
-  { value: 18, option: "1:18" },
-  { value: 20, option: "1:20" }];
 
-const iceWithWaterRatioPreset = [
-  { value: 0, option: "ไม่ใส่" },
-  { value: 0.4, option: "4:6" },
-  { value: 0.5, option: "5:5" }
+
+
+const cwRatioData = [
+  { index: 0, ratio: 10, option: "1:10" },
+  { index: 1, ratio: 12, option: "1:12" },
+  { index: 2, ratio: 13, option: "1:13" },
+  { index: 3, ratio: 15, option: "1:15" },
+  { index: 4, ratio: 17, option: "1:17" },
+  { index: 5, ratio: 18, option: "1:18" },
+  { index: 6, ratio: 20, option: "1:20" }];
+
+const iwRatioData = [
+  { index: 0, ratio: 0, option: "ไม่ใส่" },
+  { index: 1, ratio: 0.4, option: "4:6" },
+  { index: 2, ratio: 0.5, option: "5:5" }
 ]
 const DRIP_WATER_DEFAULT = 40;
 const DRIP_TIMER_DEFAULT = 40;
-const COFFEE_SEED_DEFAULT = 15;
+const COFFEE_DEFAULT = 15;
 const DRIP_LOOP_DEFAULT = 5;
 const COFFEE_WATER_RATIO_DEFAULT_INDEX = 3;
-const ICE_WATER_RATIO_DEFAULT_INDEX = 0;
+const ICE_WATER_RATIO_DEFAULT_INDEX = 1;
 
 
 
@@ -34,14 +63,27 @@ export type DripProp = {
   water: number
   time: number
 }
+
+type DripData = {
+  coffee: number;
+  cwIndex: number; //coffee to water ratio index
+  iwIndex: number; //ice to water ratio index
+  dripTasks: DripProp[]
+}
+
+type PresetData = {
+  index: number,
+  name: string,
+  data: DripData
+}
 function App() {
-  const [coffeeWithWaterRatio, setCoffeeWithWaterRatio] = useState(coffeeWithWaterRatioPreset[COFFEE_WATER_RATIO_DEFAULT_INDEX].value)
-  const [iceWithWaterRatio, setIceWithWaterRatio] = useState(iceWithWaterRatioPreset[ICE_WATER_RATIO_DEFAULT_INDEX].value)
+
+  const [presetIndex, setPresetIndex] = useState<number>(0)
+  const [currentData, setCurrentData] = useState<DripData>(presetDatas[presetIndex].data)
+
+
 
   const [water, setWater] = useState(0)
-  const [dripLoop, setDripLoop] = useState(DRIP_LOOP_DEFAULT)
-  const [dripList, setDripList] = useState<DripProp[]>([])
-  const [coffeeSeed, setCoffeeSeed] = useState(COFFEE_SEED_DEFAULT)
   const [dripTime, setDripTime] = useState(0)
   const [diffWater, setDiffWater] = useState(0)
 
@@ -57,23 +99,31 @@ function App() {
 
   useEffect(() => {
 
-    const waterTarget = Math.round((coffeeSeed * coffeeWithWaterRatio) * 100) / 100;
-    const iceTarget = waterTarget * iceWithWaterRatio
+    const cwRatio = cwRatioData[currentData.cwIndex].ratio;
+    const iwRatio = iwRatioData[currentData.iwIndex].ratio;
+    const waterTarget = Math.round((currentData.coffee * cwRatio) * 100) / 100;
+    const iceTarget = waterTarget * iwRatio
+    const w = waterTarget - iceTarget;
+
+    const dif = currentData.dripTasks.reduce((acc, list) => acc + list.water, 0) - w;
+    setDripTime(currentData.dripTasks.reduce((acc, list) => acc + list.time, 0))
 
 
+    setDiffWater(dif);
     setIce(iceTarget);
-    setWater(waterTarget - iceTarget)
-
-  }, [coffeeWithWaterRatio, coffeeSeed, iceWithWaterRatio])
+    setWater(w)
+  }, [currentData])
 
   useEffect(() => {
     //initialize
-    var list: DripProp[] = []
-    for (let index = 0; index < DRIP_LOOP_DEFAULT; index++) {
-      list.push({ id: index + 1, water: DRIP_WATER_DEFAULT, time: DRIP_TIMER_DEFAULT })
-    }
+    // var list: DripProp[] = []
+    // for (let index = 0; index < DRIP_LOOP_DEFAULT; index++) {
+    //   list.push({ id: index + 1, water: DRIP_WATER_DEFAULT, time: DRIP_TIMER_DEFAULT })
+    // }
 
-    setDripList(list);
+
+
+    // setDripList(list);
 
     return () => {
 
@@ -81,20 +131,35 @@ function App() {
   }, [])
 
 
-  useEffect(() => {
-    // console.log(dripList);
-    setDripTime(dripList.reduce((acc, list) => acc + list.time, 0))
-    const dif = dripList.reduce((acc, list) => acc + list.water, 0) - water;
-    setDiffWater(dif);
-
-  }, [dripList, water])
 
   return (
     <Stack spacing={4}>
       <FormControl>
-        <FormLabel>จำนวนเมล็ดกาแฟ (g):</FormLabel>
-        <NumberInput defaultValue={COFFEE_SEED_DEFAULT} min={10} onChange={(s, n) => {
-          setCoffeeSeed(isNaN(n) ? 0 : n);
+
+        <FormLabel mt={2}>ตัวเลือกที่เซ็ตไว้:</FormLabel>
+        <Select placeholder='Select option' value={presetIndex} onChange={(event) => {
+
+          var index = Number(event.target.value);
+          setPresetIndex(index);
+
+          setCurrentData(presetDatas[index].data);
+
+        }}>
+          {
+            presetDatas.map((item) => (
+              <option key={item.index} value={item.index}>{item.name}</option>
+            ))
+          }
+
+        </Select>
+
+        <FormLabel mt={2}>จำนวนเมล็ดกาแฟ (g):</FormLabel>
+        <NumberInput value={currentData.coffee} min={10} onChange={(s, n) => {
+          setCurrentData((data) => {
+            var newData = { ...data };
+            newData.coffee = isNaN(n) ? 0 : n
+            return newData;
+          });
         }}>
           <NumberInputField />
           <NumberInputStepper>
@@ -103,12 +168,17 @@ function App() {
           </NumberInputStepper>
         </NumberInput>
         <FormLabel mt={2}>อัตราส่วน เมล็ดกาแฟ ต่อ น้ำ:</FormLabel>
-        <Select placeholder='Select option' value={coffeeWithWaterRatio} onChange={(event) => {
-          setCoffeeWithWaterRatio(Number(event.target.value))
+        <Select placeholder='Select option' value={currentData.cwIndex} onChange={(event) => {
+          setCurrentData((data) => {
+            var newData = { ...data };
+            newData.cwIndex = Number(event.target.value);
+            return newData;
+          });
+
         }}>
           {
-            coffeeWithWaterRatioPreset.map((item) => (
-              <option key={item.value} value={item.value}>{item.option}</option>
+            cwRatioData.map((item) => (
+              <option key={item.index} value={item.index}>{item.option}</option>
             ))
           }
 
@@ -117,12 +187,17 @@ function App() {
 
 
         <FormLabel mt={2}>อัตราส่วน น้ำแข็ง ต่อ น้ำ:</FormLabel>
-        <Select placeholder='Select option' value={iceWithWaterRatio} onChange={(event) => {
-          setIceWithWaterRatio(Number(event.target.value))
+        <Select placeholder='Select option' value={currentData.iwIndex} onChange={(event) => {
+
+          setCurrentData((data) => {
+            var newData = { ...data };
+            newData.iwIndex = Number(event.target.value);
+            return newData;
+          });
         }}>
           {
-            iceWithWaterRatioPreset.map((item) => (
-              <option key={item.value} value={item.value}>{item.option}</option>
+            iwRatioData.map((item) => (
+              <option key={item.index} value={item.index}>{item.option}</option>
             ))
           }
 
@@ -135,30 +210,30 @@ function App() {
 
       {/* <Text>เมล็ดกาแฟ 1 g. ต่อน้ำ {ratio} ml.</Text> */}
 
-      <FormLabel mt={2}>จำนวนรอบในการดริป: {dripLoop} รอบ</FormLabel>
+      <FormLabel mt={2}>จำนวนรอบในการดริป: {currentData.dripTasks.length} รอบ</FormLabel>
 
-      <Slider value={dripLoop} min={3} max={5} step={1} onChange={(value) => {
-        setDripLoop(value);
-        var list = [...dripList];
-        if (value > dripLoop) {
+      <Slider value={currentData.dripTasks.length} min={3} max={5} step={1} onChange={(value) => {
+        let newData = { ...currentData }
 
-          const start = dripLoop;
+        if (value > newData.dripTasks.length) {
+
+          const start = newData.dripTasks.length;
           const max = value;
           for (let index = start; index < max; index++) {
 
-            list.push({ id: index + 1, water: DRIP_WATER_DEFAULT, time: DRIP_TIMER_DEFAULT });
+            newData.dripTasks.push({ id: index + 1, water: DRIP_WATER_DEFAULT, time: DRIP_TIMER_DEFAULT });
           }
 
-          setDripList(list);
-        } else if (value < dripLoop) {
+          setCurrentData(newData)
+        } else if (value < newData.dripTasks.length) {
 
           const start = value;
-          const max = dripLoop;
+          const max = newData.dripTasks.length;
 
           for (let index = start; index < max; index++) {
-            list.pop();
+            newData.dripTasks.pop();
           }
-          setDripList(list);
+          setCurrentData(newData)
 
         }
       }
@@ -181,11 +256,11 @@ function App() {
           <StatNumber>{ice} g.</StatNumber>
         </>
         }
-        <StatLabel color='gray.500'>สูญเสียน้ำโดยประมาณ {coffeeSeed * 2.0} ml.</StatLabel>
+        <StatLabel color='gray.500'>สูญเสียน้ำโดยประมาณ {currentData.coffee * 2.0} ml.</StatLabel>
         <StatLabel>น้ำกาแฟที่จะได้:</StatLabel>
 
         {/* add water if cold drip */}
-        <StatNumber color='blue.400'>{Math.round((water + ice + diffWater - (coffeeSeed * 2.0)) * 100) / 100} ml.</StatNumber>
+        <StatNumber color='blue.400'>{Math.round((water + ice + diffWater - (currentData.coffee * 2.0)) * 100) / 100} ml.</StatNumber>
         {diffWater > 0 && <StatLabel color='violet'>น้ำเกิน {diffWater} ml.</StatLabel>}
         {diffWater < 0 && <StatLabel color='red'>น้ำขาด {Math.abs(diffWater)} ml.</StatLabel>}
         <StatLabel>ใช้เวลาในการดริป:</StatLabel>
@@ -197,7 +272,8 @@ function App() {
 
 
       <TableContainer>
-        <Table variant='simple'>
+
+        <Table>
           {/* <TableCaption>Imperial to metric conversion factors</TableCaption> */}
           <Thead>
             <Tr>
@@ -208,17 +284,17 @@ function App() {
           </Thead>
           <Tbody>
 
-            {dripList &&
-              dripList.map((value, index) => (
+            {
+              currentData.dripTasks.map((value, index) => (
                 <Tr key={index}>
                   <Td>{value.id}</Td>
                   <Td>
                     <NumberInput step={5} value={value.time} min={30} max={50}
                       onChange={(s, n) => {
 
-                        const newArray = [...dripList];
-                        newArray[index].time = isNaN(n) ? DRIP_TIMER_DEFAULT : n;
-                        setDripList(newArray);
+                        const newData = { ...currentData };
+                        newData.dripTasks[index].time = isNaN(n) ? 0 : n;
+                        setCurrentData(newData);
                       }}>
                       <NumberInputField />
                       <NumberInputStepper>
@@ -230,11 +306,10 @@ function App() {
                   <Td>
                     <NumberInput step={1} value={value.water} min={20} max={100}
                       onChange={(s, n) => {
-                        const newArray = [...dripList];
-                        let w = isNaN(n) ? DRIP_WATER_DEFAULT : n;
-                        newArray[index].water = w;
 
-                        setDripList(newArray);
+                        const newData = { ...currentData };
+                        newData.dripTasks[index].water = isNaN(n) ? 0 : n;
+                        setCurrentData(newData);
                       }}>
                       <NumberInputField />
                       <NumberInputStepper>
@@ -261,7 +336,7 @@ function App() {
 
 
 
-      <DripingTime isOpen={isOpen} onClose={onClose} datas={dripList} />
+      <DripingTime isOpen={isOpen} onClose={onClose} datas={currentData.dripTasks} />
     </Stack>
   )
 }
