@@ -8,14 +8,14 @@ import DripingTime from './DripingTime'
 
 const presetDatas: PresetData[] = [{
   index: 0, name: "สูตรเย็น1", data: {
-    coffee: 15,
+    coffee: 18,
     cwIndex: 3,
     iwIndex: 1,
     dripTasks: [
       { id: 1, time: 40, water: 25 },
-      { id: 2, time: 40, water: 30 },
-      { id: 3, time: 40, water: 50 },
-      { id: 4, time: 40, water: 30 },
+      { id: 2, time: 40, water: 35 },
+      { id: 3, time: 40, water: 67 },
+      { id: 4, time: 40, water: 35 },
     ]
   }
 }, {
