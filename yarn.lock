@@ -1285,6 +1285,11 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.7.tgz#ccab5c8f7dc557a52ca3288c10075c9ccd37fff7"
   integrity sha512-Cr4OjIkipTtcXKjAsm8agyleBuDHvxzeBoa1v543lbv1YaIwQjESsVcmjiWiPEbC1FIeHOG/Op9kdCmAmiS3Kw==
 
+"@sayem314/react-native-keep-awake@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@sayem314/react-native-keep-awake/-/react-native-keep-awake-1.1.0.tgz#852f9f8481c0ab38a54d6f0b85324f3024eb6031"
+  integrity sha512-1k57PXJIfhZrjA4ZQr+goTEYer8MBhe1At6XjVYJq1oBuhG/CIu0gX1EH9fU9exC65e5uDs/zAwjl6Ps+3lCgg==
+
 "@types/lodash.mergewith@4.6.7":
   version "4.6.7"
   resolved "https://registry.yarnpkg.com/@types/lodash.mergewith/-/lodash.mergewith-4.6.7.tgz#eaa65aa5872abdd282f271eae447b115b2757212"

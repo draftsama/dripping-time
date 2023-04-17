@@ -5,16 +5,17 @@ import './App.css'
 import { Box, Button, Container, FormControl, FormHelperText, FormLabel, HStack, Input, InputGroup, InputLeftAddon, InputRightAddon, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Spacer, Stack, Stat, StatHelpText, StatLabel, StatNumber, Switch, Table, TableCaption, TableContainer, Tbody, Td, Text, Tfoot, Th, Thead, Tr, VStack, useDisclosure } from '@chakra-ui/react'
 import DripingTime from './DripingTime'
 
+
 const presetDatas: PresetData[] = [{
   index: 0, name: "สูตรเย็น1", data: {
-    coffee: 20,
+    coffee: 15,
     cwIndex: 3,
     iwIndex: 1,
     dripTasks: [
-      { id: 1, time: 40, water: 40 },
-      { id: 2, time: 40, water: 40 },
-      { id: 3, time: 40, water: 60 },
-      { id: 4, time: 40, water: 40 },
+      { id: 1, time: 40, water: 25 },
+      { id: 2, time: 40, water: 30 },
+      { id: 3, time: 40, water: 50 },
+      { id: 4, time: 40, water: 30 },
     ]
   }
 }, {

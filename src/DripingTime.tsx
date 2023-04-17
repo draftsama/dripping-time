@@ -2,6 +2,7 @@
 import { Button, Center, CircularProgress, CircularProgressLabel, Container, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Stat, StatLabel, StatNumber, VStack } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react'
 import { DripProp } from './App';
+import { activateKeepAwake, deactivateKeepAwake } from "@sayem314/react-native-keep-awake";
 
 type Props = {
     isOpen: boolean;
@@ -34,6 +35,7 @@ const DripingTime = (props: Props) => {
         if (props.isOpen) {
 
             console.log("open");
+            activateKeepAwake();
             let index = 0;
             let timer = props.datas[index].time;
 
@@ -96,6 +98,7 @@ const DripingTime = (props: Props) => {
                 audioSuccess.currentTime = 0;
 
                 clearInterval(intervalId!);
+                deactivateKeepAwake();
             }
         }
     }, [props.isOpen])
