@@ -18,8 +18,21 @@ const presetDatas: PresetData[] = [{
       { id: 4, time: 40, water: 35 },
     ]
   }
+},
+{
+  index: 1, name: "สูตรลาเต้", data: {
+    coffee: 15,
+    cwIndex: 1,
+    iwIndex: 1,
+    dripTasks: [
+      { id: 1, time: 40, water: 20 },
+      { id: 2, time: 40, water: 20 },
+      { id: 3, time: 40, water: 43 },
+      { id: 4, time: 40, water: 25 },
+    ]
+  }
 }, {
-  index: 1, name: "สูตรร้อน1", data: {
+  index: 2, name: "สูตรร้อน1", data: {
     coffee: 15,
     cwIndex: 3,
     iwIndex: 0,
